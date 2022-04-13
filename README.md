@@ -1,30 +1,15 @@
 ### Serializing and deserializing Order objects
  
-**Branch name:** dynamodbscanandserialization-prework
-
-**AWS account:** (account number for your &lt;Alias&gt;ATAUnit5 account -- 
-[find on Conduit](https://access.amazon.com/aws/accounts))
- 
-**role:** IibsAdminAccess-DO-NOT-DELETE
- 
-**RDE workfows:**
-* `rde wflow run dynamodbscanandserialization-prework-serialize-orderserializertest`
- 
-Expected time required: 10 min
- 
 You have a database table, `OnlineUserOrders`, that keeps track of users' online orders and the cost of each order.
  
 First, use CloudFormation to populate the table.
 
-1. Make sure `ada` is running with the credentials specified at the top of this README
-   (the AWS account that ATA set up for you for this unit). [Instructions on `ada` and `aws`
-   command line interfaces](https://w.amazon.com/bin/view/Amazon_Technical_Academy/Internal/HowTos/Get_AWS_Credentials_On_Laptop/).
 1. Create the tables we'll be using for this activity by running the following `aws` CLI commands:
    ```none
-   aws cloudformation create-stack --region us-west-2 --stack-name dynamodbscan-onlineuserorderstable --template-body file://cloudformation/dynamodbscanandserialization/prework/DynamoDB_OnlineUserOrders.yml --capabilities CAPABILITY_IAM
+   aws cloudformation create-stack --region us-west-2 --stack-name dynamodbscan-onlineuserorderstable --template-body file://cloudformation/DynamoDB_OnlineUserOrders.yml --capabilities CAPABILITY_IAM
    ```
 1. Make sure the `aws` command runs without error.
-1. Log into your AWS account on Conduit and verify that the table exists and has sample data.
+1. Log into your AWS account and verify that the table exists in DynamoDB and has sample data.
  
 The `OnlineUserOrders` table looks like this:
  

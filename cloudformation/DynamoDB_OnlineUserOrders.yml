@@ -1,0 +1,160 @@
+Resources:
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: dynamodbAccessRole
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - dynamodb:*
+              Resource: "*"
+            - Effect: Allow
+              Action:
+              - logs:*
+              Resource: "*"
+  InitFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: >
+          const AWS = require("aws-sdk");
+          const response = require('./cfn-response');
+          const docClient = new AWS.DynamoDB.DocumentClient();
+          exports.handler = function(event, context) {
+              console.log(JSON.stringify(event,null,2));
+               var params = {
+                  RequestItems: {
+                   "OnlineUserOrders": [
+                     {
+                      PutRequest: {
+                       Item: {
+                        userId: "62da86ba",
+                        orderId: "20121207-54297", 
+                        cost: 24.89
+                       }
+                      }
+                     },
+                     {
+                      PutRequest: {
+                       Item: {
+                        userId: "62da86ba",
+                        orderId: "20140425-03576", 
+                        cost: 45.87
+                       }
+                      }
+                     },
+                     {
+                      PutRequest: {
+                       Item: {
+                        userId: "62da86ba",
+                        orderId: "20140425-54879", 
+                        cost: 32.01
+                       }
+                      }
+                     },
+                     {
+                      PutRequest: {
+                       Item: {
+                        userId: "62da86ba",
+                        orderId: "20170923-54129", 
+                        cost: 103.87
+                       }
+                      }
+                     },
+                     {
+                      PutRequest: {
+                       Item: {
+                        userId: "62da86ba",
+                        orderId: "20190305-78159", 
+                        cost: 209.13
+                       }
+                      }
+                     },
+                     {
+                      PutRequest: {
+                       Item: {
+                        userId: "62da86ba",
+                        orderId: "20200105-42158", 
+                        cost: 89.65
+                       }
+                      }
+                     },
+                     {
+                      PutRequest: {
+                       Item: {
+                        userId: "d1a93bea",
+                        orderId: "20091204-78216", 
+                        cost: 34.23
+                       }
+                      }
+                     },
+                     {
+                      PutRequest: {
+                       Item: {
+                        userId: "d1a93bea",
+                        orderId: "20130817-45789", 
+                        cost: 17.03
+                       }
+                      }
+                     }
+                    ]
+                  }
+                 };
+                 docClient.batchWrite(params, function(err, data) { if (err) {
+                    response.send(event, context, "FAILED", {});
+                  } else {
+                    response.send(event, context, "SUCCESS", {});
+                  }
+                });
+              };
+      Handler: index.handler
+      Role:
+        Fn::GetAtt: [ LambdaRole , "Arn" ]
+      Runtime: nodejs14.x
+      Timeout: 60
+  Unit5Lesson07DynamoDBOnlineUserOrders:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      "AttributeDefinitions" : [
+        {
+          "AttributeName" : "userId",
+          "AttributeType" : "S"
+        },
+        {
+          "AttributeName" : "orderId",
+          "AttributeType" : "S"
+          }
+        ]
+      "KeySchema" : [
+          {
+            "AttributeName" : "userId",
+            "KeyType" : "HASH"
+          },
+          {
+            "AttributeName" : "orderId",
+            "KeyType" : "RANGE"
+          }
+          ]
+      BillingMode: PAY_PER_REQUEST
+      TableName: "OnlineUserOrders"
+  InitializeClubMembers:
+    Type: Custom::InitFunction
+    DependsOn: Unit5Lesson07DynamoDBOnlineUserOrders
+    Properties:
+      ServiceToken:
+         Fn::GetAtt: [ InitFunction , "Arn" ]
+      DynamoTableName:
+        Ref: Unit5Lesson07DynamoDBOnlineUserOrders
